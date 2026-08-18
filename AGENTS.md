@@ -2,14 +2,25 @@
 
 Two independent Node projects in one repo. No npm workspaces, no root `package.json` — install and run each project from its own directory with its own `node_modules` and lockfile.
 
-- `techbasket_backend/` — Express 5 API (TypeScript file, CommonJS `require` style). Run: `npx ts-node-dev index.ts` from `techbasket_backend/`. No `tsconfig.json`, no `dev` script (the `test` script is a placeholder that errors). `dotenv.config()` loads `.env` at runtime; there is no `.env` file committed.
-- `techbasket_frontend/` — Next.js 16.3.1 App Router + React 19 + Tailwind v4 + React Compiler (`reactCompiler: true` in `next.config.ts`). Scripts: `npm run dev` / `build` / `start` / `lint`. TS path alias `@/*` → `src/*`. Do not touch `techbasket_frontend/AGENTS.md` — it is auto-generated and re-added by `next dev` (Next 16 has breaking API changes; read `node_modules/next/dist/docs/` before writing frontend code).
+## Backend — `techbasket_backend/`
 
-## Git gotchas
+- Express 5 + Mongoose API. Entrypoint is `src/index.ts`, written as CommonJS `require` calls mixed with TS `import type`. Run from `techbasket_backend/`: `npx ts-node-dev src/index.ts`.
+- `src/index.ts` has no `export default` — `app.listen()` starts the server directly (kept CommonJS-compatible with `verbatimModuleSyntax: true`).
+- No `dev`/`start`/`build` scripts; the `test` script is a placeholder that errors.
+- `tsconfig.json` is tracked (`rootDir: ./src`, `outDir: ./dist`); `.gitignore` ignores `node_modules/`, `.env`, `dist/`.
+- Env: `dotenv.config()` loads `.env` at runtime (gitignored, local copy currently empty). `.env.example` documents `MONGODB_URL`, `MONGODB_DB`, `JWT_SECRET`, `PORT`. The server reads `PORT` from env, defaulting to 5000.
 
-- `techbasket_frontend` is its own git repo (branch `master`), recorded in the root repo (branch `Production`) only as a gitlink (mode 160000). There is no `.gitmodules`. Frontend commits happen inside `techbasket_frontend/`; the root repo just points at a frontend commit hash.
-- The backend has no `.gitignore`: `techbasket_backend/node_modules/`, `package.json`, and `package-lock.json` are currently untracked in the root repo. Do not stage `node_modules`.
+## Frontend — `techbasket_frontend/`
+
+- Next.js 16.3.1 App Router + React 19 + Tailwind v4 + React Compiler (`reactCompiler: true` in `next.config.ts`). Scripts: `npm run dev` / `build` / `start` / `lint`. TS path alias `@/*` → `src/*`.
+- Do not touch `techbasket_frontend/AGENTS.md` — it is auto-generated and re-added by `next dev`. Next 16 has breaking API changes; read `node_modules/next/dist/docs/` (present in the frontend's `node_modules`) before writing frontend code.
+
+## Git
+
+- Single root repo; the frontend is tracked as ordinary files (it used to be a nested git repo recorded as a gitlink, but there is no `.git` in `techbasket_frontend/` anymore — no submodules). Run git from the root, never `git -C techbasket_frontend`.
+- Working tree is mid-migration: old `techbasket_backend/index.ts` / `index.js` are deleted, new `src/` and `.env.example` are untracked, `tsconfig.json` is modified. Never stage `node_modules` or `.env`.
+- Root repo branches: `Badsha` (current), `main`, `tonoy`.
 
 ## Ports
 
-Both servers default to port 3000, so running both at once conflicts. Give the backend a distinct port: `$env:PORT=5000; npx ts-node-dev index.ts` (or a `.env` with `PORT`).
+Both servers default to 3000, so running both at once conflicts. Give the backend a distinct port: `$env:PORT=5000; npx ts-node-dev src/index.ts` (or set `PORT` in `techbasket_backend/.env`).
