@@ -26,3 +26,39 @@ const startServer = async () => {
 
 startServer()
 
+// unhandled Rejection  handler
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at:', promise, 'reason:', reason)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+
+    } else {
+        process.exit(1)
+    }
+})
+
+// uncaughtException handler
+process.on('uncaughtException', (error) => {
+    console.log('Uncaught Exception:', error)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    } else {
+        process.exit(1)
+    }
+})
+
+// Sigterm handler
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received')
+    if (server) {
+        server.close(() => {
+            process.exit(0)
+        })
+    } else {
+        process.exit(0)
+    }
+})      
