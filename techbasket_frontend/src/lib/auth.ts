@@ -3,7 +3,6 @@ import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { jwt } from "better-auth/plugins";
 
-
 const googleClientId = process.env.GOOGLE_CLIENT_ID!;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET!;
 
@@ -26,18 +25,24 @@ export const auth = betterAuth({
     },
   },
 
-  // user: {
-  //   additionalFields: {
-  //     role: {
-  //       type: "string",
-  //       default: "reader",
-  //     },
-  //     plan: {
-  //       type: "string",
-  //       default: "free",
-  //     },
-  //   },
-  // },
+  user: {
+    additionalFields: {
+      companyName: {
+        type: "string",
+        required: true,
+      },
+
+      branch: {
+        type: "string",
+        required: true,
+      },
+
+      role: {
+        type: "string",
+        required: true,
+      },
+    },
+  },
 
   session: {
     cookieCache: {
